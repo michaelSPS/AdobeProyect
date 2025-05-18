@@ -17,7 +17,7 @@ import org.junit.runner.RunWith;
                 "json:target/cucumber.json"
         },
         monochrome = true,
-        tags = "@regression"
+        tags = "@smoke"
 )
 
 public class TestRunner {
