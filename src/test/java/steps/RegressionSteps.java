@@ -34,7 +34,7 @@ public class RegressionSteps {
     }
 
     @Given("^(?:I|The Client) navigate to (.+)$")
-    public void iNavigateToLiverpoolHome(String configKey) throws IOException {
+    public void NavigateToHomePage(String configKey) throws IOException {
         homePage.navigateToWebPage(configKey);
         System.out.println("✅ PASÓ");
     }

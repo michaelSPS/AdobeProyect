@@ -15,14 +15,6 @@ public class HomePage extends BasePage {
         return driver.getTitle();
     }
 
-    public void navigateToLiverpool() throws IOException {
-        navigateToWebPage("home.url");
-    }
-
-    public void navigateToLogin() throws IOException {
-        navigateToWebPage("login.url");
-    }
-
     public void typeEnterOnSearchBar() throws IOException {
         System.out.println("DEBUG: Typing enter on searchbar");
 

@@ -5,6 +5,8 @@ import io.cucumber.java.en.Then;
 import org.junit.Assert;
 import pages.HomePage;
 
+import java.io.IOException;
+
 import static steps.Hooks.driver;
 
 public class SmokeSteps {
@@ -15,13 +17,14 @@ public class SmokeSteps {
         homePage = new HomePage(driver);
     }
 
-    @Given("The user navigates to the homepage")
-    public void theUserNavigatesToTheHomepage() {
-        driver.get("https://www.liverpool.com.mx/");
+    @Given("^(?:I|The user) navigates to the (.+)$")
+    public void NavigatesToHomePage(String configKey) throws IOException {
+        homePage.navigateToWebPage(configKey);
+        System.out.println("✅ PASÓ");
     }
 
-    @Then("The homepage should be displayed")
+    @Then("^The home page should be displayed$")
     public void theHomepageShouldBeDisplayed() {
-        Assert.assertTrue("Page title should contain 'Liverpool'", homePage.getPageTitle().toLowerCase().contains("liverpool"));
+        Assert.assertTrue("Page title should contain 'Adobe'", homePage.getPageTitle().toLowerCase().contains("adobe"));
     }
 }
