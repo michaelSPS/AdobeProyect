@@ -16,6 +16,23 @@ pipeline {
         sh 'docker run --rm --shm-size=1g adobe-automation:latest'
       }
     }
+
+    stage('Publish Docker Image') {
+      when { branch 'main' }
+      steps {
+        withCredentials([usernamePassword(
+          credentialsId: 'dockerhub',
+          usernameVariable: 'DOCKER_USER',
+          passwordVariable: 'DOCKER_PASS'
+        )]) {
+          sh """
+            echo "$DOCKER_PASS" | docker login --username "$DOCKER_USER" --password-stdin
+            docker tag adobe-automation:latest michaelSPS/adobe-automation:${BUILD_NUMBER}
+            docker push michaelSPS/adobe-automation:${BUILD_NUMBER}
+          """
+        }
+      }
+    }
   }
 
   post {
