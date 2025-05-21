@@ -7,6 +7,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class Hooks {
 
@@ -15,21 +16,26 @@ public class Hooks {
     @Before
     public void setUp() throws Exception {
         System.out.println("Inicializando WebDriver desde Hooks...");
+
         if (driver == null) {
-            // Crea un directorio temporal único para el perfil de Chrome
-            String userDataDir = Files.createTempDirectory("chrome-user-data-").toString();
+            // 1. Creamos un directorio temporal único para este test
+            Path tmpProfile = Files.createTempDirectory("chrome-profile-");
 
-            ChromeOptions options = new ChromeOptions();
-            // Indica dónde está el binario de Chromium en el contenedor
+            // 2. Configuramos las opciones de Chrome
+            ChromeOptions options = new ChromeOptions()
+                    // 2.1 Modo headless (si lo quieres visible, quita esta línea)
+                    .addArguments("--headless=new")
+                    // 2.2 Opciones necesarias en Docker
+                    .addArguments("--no-sandbox",
+                            "--disable-dev-shm-usage",
+                            "--disable-gpu",
+                            // 2.3 Perfil único
+                            "--user-data-dir=" + tmpProfile.toString());
+
+            // 3. Indicarle dónde está el binario (ya lo tienes en el ENV)
             options.setBinary(System.getenv("CHROME_BIN"));
-            // Flags necesarios para correr dentro de Docker
-            options.addArguments(
-                    "--headless=new",                // Modo headless
-                    "--no-sandbox",                  // Sin sandbox (necesario en contenedor)
-                    "--disable-dev-shm-usage",       // Usa /tmp en lugar de /dev/shm
-                    "--user-data-dir=" + userDataDir // Perfil único por sesión
-            );
 
+            // 4. Arrancar Chrome
             driver = new ChromeDriver(options);
             driver.manage().window().maximize();
         }
