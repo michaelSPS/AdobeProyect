@@ -25,11 +25,19 @@ pipeline {
           usernameVariable: 'DOCKER_USER',
           passwordVariable: 'DOCKER_PASS'
         )]) {
-          sh """
-            echo "$DOCKER_PASS" | docker login --username "$DOCKER_USER" --password-stdin
-            docker tag adobe-automation:latest michaelSPS/adobe-automation:${BUILD_NUMBER}
-            docker push michaelSPS/adobe-automation:${BUILD_NUMBER}
-          """
+          sh '''
+            echo "$DOCKER_PASS" \
+              | docker login --username "$DOCKER_USER" --password-stdin
+
+            # Usa la variable para taggear y pushear
+            docker tag adobe-automation:latest \
+              $DOCKER_USER/adobe-automation:$BUILD_NUMBER
+
+            docker push \
+              $DOCKER_USER/adobe-automation:$BUILD_NUMBER
+
+            docker logout
+          '''
         }
       }
     }
