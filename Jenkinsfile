@@ -1,6 +1,10 @@
 pipeline {
   agent any
 
+   tools {
+      allure 'Allure_2.13.9'
+    }
+
   stages {
     stage('Checkout') {
       steps {
