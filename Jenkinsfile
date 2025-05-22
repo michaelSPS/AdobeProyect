@@ -11,7 +11,7 @@ pipeline {
 
     stage('Build & Test') {
       steps {
-        // Replica tu comando Maven via Docker
+        // Construye la imagen y ejecuta los tests dentro del contenedor
         sh 'docker build -t adobe-automation:latest .'
         sh 'docker run --rm --shm-size=1g adobe-automation:latest'
       }
@@ -45,8 +45,15 @@ pipeline {
 
   post {
     always {
-      // Publícalo para que Jenkins muestre los reportes JUnit
+      // Publica resultados JUnit
       junit 'target/surefire-reports/*.xml'
+
+      // Genera y publica reporte Allure
+      allure([
+        includeProperties: false,
+        jdk: '',
+        results: [[ path: 'target/allure-results' ]]
+      ])
     }
   }
 }
