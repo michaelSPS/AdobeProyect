@@ -1,4 +1,4 @@
-package steps;
+package com.dilato.adobe.steps;
 
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -10,16 +10,16 @@ import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import pages.CartPage;
-import pages.FilterPage;
-import pages.HomePage;
-import pages.SearchResultsPage;
-import utils.WaitUtils;
+import com.dilato.adobe.pages.CartPage;
+import com.dilato.adobe.pages.FilterPage;
+import com.dilato.adobe.pages.HomePage;
+import com.dilato.adobe.pages.SearchResultsPage;
+import com.dilato.adobe.utils.WaitUtils;
 
 import java.io.IOException;
 import java.time.Duration;
 
-import static steps.Hooks.driver;
+import static com.dilato.adobe.steps.Hooks.driver;
 
 public class RegressionSteps {
 

@@ -1,10 +1,10 @@
-package pages;
+package com.dilato.adobe.pages;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import utils.ConfigManager;
-import utils.WaitUtils;
+import com.dilato.adobe.utils.ConfigManager;
+import com.dilato.adobe.utils.WaitUtils;
 
 import java.io.IOException;
 import java.time.Duration;

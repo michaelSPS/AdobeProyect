@@ -1,4 +1,4 @@
-package utils;
+package com.dilato.adobe.utils;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;

@@ -1,11 +1,11 @@
-package pages;
+package com.dilato.adobe.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import utils.ConfigManager;
+import com.dilato.adobe.utils.ConfigManager;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -21,7 +21,7 @@ public class CartPage extends BasePage {
         String locatorKey = "verifyResults";
         try {
             waitUtils.verifyElementIsVisible(locatorKey);
-            String locator = utils.ConfigManager.getLocator(locatorKey);
+            String locator = ConfigManager.getLocator(locatorKey);
             List<WebElement> products = driver.findElements(By.xpath(locator));
 
             if (products.isEmpty()) {

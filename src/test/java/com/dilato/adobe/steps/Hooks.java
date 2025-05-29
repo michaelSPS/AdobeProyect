@@ -1,5 +1,6 @@
-package steps;
+package com.dilato.adobe.steps;
 
+import com.dilato.adobe.drivers.DriverFactory;
 import io.cucumber.java.Before;
 import io.cucumber.java.After;
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -40,7 +41,7 @@ public class Hooks {
                     .setup();
 
             // 5) Inicializa WebDriver
-            driver = new ChromeDriver(options);
+            driver = DriverFactory.getDriver();
             driver.manage().window().maximize();
         }
     }
@@ -48,8 +49,7 @@ public class Hooks {
     @After
     public void tearDown() {
         if (driver != null) {
-            driver.quit();
-            driver = null;
+            DriverFactory.quitDriver();
         }
     }
 }

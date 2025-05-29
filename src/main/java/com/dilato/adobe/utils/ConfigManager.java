@@ -1,4 +1,4 @@
-package utils;
+package com.dilato.adobe.utils;
 
 import java.io.FileReader;
 import java.io.IOException;

@@ -1,8 +1,6 @@
-package utils;
+package com.dilato.adobe.utils;
 
 import org.openqa.selenium.*;
-
-import java.io.IOException;
 
 public class CheckboxUtils extends BaseUtils {
 

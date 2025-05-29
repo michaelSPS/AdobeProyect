@@ -1,8 +1,8 @@
-package pages;
+package com.dilato.adobe.pages;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
-import utils.ConfigManager;
+import com.dilato.adobe.utils.ConfigManager;
 import java.io.IOException;
 
 public class HomePage extends BasePage {

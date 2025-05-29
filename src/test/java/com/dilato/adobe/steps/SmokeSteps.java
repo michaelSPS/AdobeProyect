@@ -1,13 +1,13 @@
-package steps;
+package com.dilato.adobe.steps;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import org.junit.Assert;
-import pages.HomePage;
+import com.dilato.adobe.pages.HomePage;
 
 import java.io.IOException;
 
-import static steps.Hooks.driver;
+import static com.dilato.adobe.steps.Hooks.driver;
 
 public class SmokeSteps {
 

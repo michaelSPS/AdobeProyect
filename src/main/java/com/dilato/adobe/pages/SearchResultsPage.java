@@ -1,9 +1,9 @@
-package pages;
+package com.dilato.adobe.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import utils.ConfigManager;
+import com.dilato.adobe.utils.ConfigManager;
 
 import java.io.IOException;
 import java.util.List;
