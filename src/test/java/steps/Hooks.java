@@ -2,6 +2,7 @@ package steps;
 
 import io.cucumber.java.Before;
 import io.cucumber.java.After;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -18,24 +19,27 @@ public class Hooks {
         System.out.println("Inicializando WebDriver desde Hooks...");
 
         if (driver == null) {
-            // 1. Creamos un directorio temporal único para este test
+            // 1) Perfil temporal
             Path tmpProfile = Files.createTempDirectory("chrome-profile-");
 
-            // 2. Configuramos las opciones de Chrome
+            // 2) ChromeOptions base
             ChromeOptions options = new ChromeOptions()
-                    // 2.1 Modo headless (si lo quieres visible, quita esta línea)
                     .addArguments("--headless=new")
-                    // 2.2 Opciones necesarias en Docker
-                    .addArguments("--no-sandbox",
-                            "--disable-dev-shm-usage",
-                            "--disable-gpu",
-                            // 2.3 Perfil único
-                            "--user-data-dir=" + tmpProfile.toString());
+                    .addArguments("--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu")
+                    .addArguments("--user-data-dir=" + tmpProfile.toString());
 
-            // 3. Indicarle dónde está el binario (ya lo tienes en el ENV)
-            options.setBinary(System.getenv("CHROME_BIN"));
+            // 3) Sólo setea el binary cuando CHROME_BIN existe (en Docker)
+            String chromeBin = System.getenv("CHROME_BIN");
+            if (chromeBin != null && !chromeBin.isEmpty()) {
+                options.setBinary(chromeBin);
+            }
 
-            // 4. Arrancar Chrome
+            // 4) Gestiona automáticamente chromedriver
+            WebDriverManager.chromedriver()
+                    .clearDriverCache()
+                    .setup();
+
+            // 5) Inicializa WebDriver
             driver = new ChromeDriver(options);
             driver.manage().window().maximize();
         }
