@@ -1,23 +1,41 @@
 pipeline {
   agent any
 
-   tools {
-      allure 'Allure_2.13.9'
-    }
+  tools {
+    allure 'Allure_2.13.9'
+  }
+
+  stage('Clean Docker System') {
+        steps {
+          sh 'docker container prune -f || true'
+          sh 'docker image prune -f || true'
+        }
+      }
 
   stages {
     stage('Checkout') {
       steps {
-        // Clona del mismo repo y branch que configuraste en Jenkins
         checkout scm
       }
     }
 
-    stage('Build & Test') {
+    stage('Build Docker Image') {
       steps {
-        // Construye la imagen y ejecuta los tests dentro del contenedor
-        sh 'docker build -t adobe-automation:latest .'
-        sh 'docker run --rm --shm-size=1g adobe-automation:latest'
+        // Construcción limpia (sin cache) para evitar errores con capas anteriores
+        sh 'docker build --no-cache -t adobe-automation:latest .'
+      }
+    }
+
+    stage('Run Tests in Docker') {
+      steps {
+        // Ejecuta los tests dentro del contenedor
+        sh '''
+          docker run --rm --shm-size=1g \
+            -v $WORKSPACE:/usr/src/app \
+            -w /usr/src/app \
+            adobe-automation:latest \
+            sh -c "mvn clean && mvn test"
+        '''
       }
     }
 
@@ -30,15 +48,10 @@ pipeline {
           passwordVariable: 'DOCKER_PASS'
         )]) {
           sh '''
-            echo "$DOCKER_PASS" \
-              | docker login --username "$DOCKER_USER" --password-stdin
+            echo "$DOCKER_PASS" | docker login --username "$DOCKER_USER" --password-stdin
 
-            # Usa la variable para taggear y pushear
-            docker tag adobe-automation:latest \
-              $DOCKER_USER/adobe-automation:$BUILD_NUMBER
-
-            docker push \
-              $DOCKER_USER/adobe-automation:$BUILD_NUMBER
+            docker tag adobe-automation:latest $DOCKER_USER/adobe-automation:$BUILD_NUMBER
+            docker push $DOCKER_USER/adobe-automation:$BUILD_NUMBER
 
             docker logout
           '''
@@ -49,10 +62,8 @@ pipeline {
 
   post {
     always {
-      // Publica resultados JUnit
       junit 'target/surefire-reports/*.xml'
 
-      // Genera y publica reporte Allure
       allure([
         includeProperties: false,
         jdk: '',
