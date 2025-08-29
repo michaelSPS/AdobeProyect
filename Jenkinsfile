@@ -5,13 +5,6 @@ pipeline {
     allure 'Allure_2.13.9'
   }
 
-  stage('Clean Docker System') {
-        steps {
-          sh 'docker container prune -f || true'
-          sh 'docker image prune -f || true'
-        }
-      }
-
   stages {
     stage('Checkout') {
       steps {
@@ -19,22 +12,26 @@ pipeline {
       }
     }
 
+    stage('Clean Docker System') {
+      steps {
+        sh 'docker system prune -af'
+      }
+    }
+
     stage('Build Docker Image') {
       steps {
-        // Construcción limpia (sin cache) para evitar errores con capas anteriores
         sh 'docker build --no-cache -t adobe-automation:latest .'
       }
     }
 
     stage('Run Tests in Docker') {
       steps {
-        // Ejecuta los tests dentro del contenedor
         sh '''
           docker run --rm --shm-size=1g \
             -v $WORKSPACE:/usr/src/app \
             -w /usr/src/app \
             adobe-automation:latest \
-            sh -c "mvn clean && mvn test"
+            mvn clean test
         '''
       }
     }
