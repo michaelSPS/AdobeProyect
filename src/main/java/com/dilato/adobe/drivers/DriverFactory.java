@@ -6,52 +6,68 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
-public class DriverFactory {
-    private static ThreadLocal<WebDriver> driver = new ThreadLocal<>();
+public final class DriverFactory {
 
-    private DriverFactory() {}
+    private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();
 
-    public static WebDriver getDriver() throws Exception {
-        if (driver.get() == null) {
-            String browser = System.getProperty("browser", "chrome").toLowerCase();
+    private DriverFactory() {
+        // utility
+    }
+
+    public static WebDriver getDriver() {
+        if (DRIVER.get() == null) {
+            final String browser = System.getProperty("browser", "chrome")
+                    .trim()
+                    .toLowerCase(Locale.ROOT);
 
             switch (browser) {
-                case "chrome":
+                case "chrome": {
                     ChromeOptions chromeOptions = getChromeOptions();
-                    Object argsObj = chromeOptions.asMap().get("args");
 
-                    if (argsObj instanceof List) {
-                        List<String> argsList = (List<String>) argsObj;
-                        System.out.println("🚀 Lanzando Chrome con opciones: " + String.join(" ", argsList));
+                    // Obtener los argumentos de manera segura desde asMap()
+                    Object argsObj = chromeOptions.asMap().get("args");
+                    if (argsObj instanceof List<?>) {
+                        @SuppressWarnings("unchecked") // cast seguro porque Selenium siempre devuelve List<String>
+                        List<String> args = (List<String>) argsObj;
+
+                        if (!args.isEmpty()) {
+                            System.out.println("🚀 Lanzando Chrome con opciones: " + String.join(" ", args));
+                        } else {
+                            System.out.println("🚀 Lanzando Chrome sin argumentos personalizados.");
+                        }
                     } else {
                         System.out.println("🚀 Lanzando Chrome sin argumentos personalizados.");
                     }
 
-                    driver.set(new ChromeDriver(chromeOptions));
+                    DRIVER.set(new ChromeDriver(chromeOptions));
                     break;
+                }
 
-                case "firefox":
-                    driver.set(new FirefoxDriver(getFirefoxOptions()));
+                case "firefox": {
+                    DRIVER.set(new FirefoxDriver(getFirefoxOptions()));
                     break;
-
+                }
                 default:
                     throw new IllegalArgumentException("Navegador no soportado: " + browser);
             }
 
-            driver.get().manage().window().maximize();
+            DRIVER.get().manage().window().maximize();
         }
-
-        return driver.get();
+        return DRIVER.get();
     }
 
     private static ChromeOptions getChromeOptions() {
         ChromeOptions options = new ChromeOptions();
 
+        // Usa un directorio temporal para el perfil (más seguro en diferentes entornos)
         String uniqueDir = "chrome-profile-" + UUID.randomUUID();
-        System.out.println("🧪 user-data-dir usado: " + uniqueDir);
+        String userDataDir = Paths.get(System.getProperty("java.io.tmpdir"), uniqueDir).toString();
+        System.out.println("🧪 user-data-dir usado: " + userDataDir);
 
         options.addArguments(
                 "--headless=new",
@@ -59,9 +75,10 @@ public class DriverFactory {
                 "--disable-dev-shm-usage",
                 "--disable-gpu",
                 "--remote-debugging-port=9222",
-                "--user-data-dir=" + uniqueDir
+                "--user-data-dir=" + userDataDir
         );
 
+        // Respeta CHROME_BIN si está seteado (Docker/CI)
         String chromeBin = System.getenv("CHROME_BIN");
         if (chromeBin != null && !chromeBin.isEmpty()) {
             options.setBinary(chromeBin);
@@ -71,13 +88,21 @@ public class DriverFactory {
     }
 
     private static FirefoxOptions getFirefoxOptions() {
-        return new FirefoxOptions().addArguments("-headless");
+        FirefoxOptions options = new FirefoxOptions();
+        options.addArguments("-headless");
+        // equivalente a -headless, tipado
+        return options;
     }
 
     public static void quitDriver() {
-        if (driver.get() != null) {
-            driver.get().quit();
-            driver.remove();
+        WebDriver d = DRIVER.get();
+        if (d != null) {
+            try {
+                d.quit();
+            } finally {
+                DRIVER.remove();
+            }
         }
     }
 }
+

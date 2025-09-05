@@ -8,14 +8,19 @@
     <artifactId>Adobe</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <!-- 1) Centralizamos todas las versiones en properties -->
+    <!-- 1) Centralizamos versiones -->
     <properties>
         <java.version>17</java.version>
-        <selenium.version>4.32.0</selenium.version>
+        <selenium.version>4.35.0</selenium.version>
         <cucumber.version>7.12.0</cucumber.version>
+
+        <!-- Logging -->
+        <slf4j.version>2.0.13</slf4j.version>
+        <log4j2.version>2.23.1</log4j2.version>
+
+        <!-- Reporting / Utils -->
         <allure.version>2.20.1</allure.version>
         <allure.maven.plugin.version>2.11.2</allure.maven.plugin.version>
-        <log4j2.version>2.20.0</log4j2.version>
         <poi.version>5.4.1</poi.version>
         <xmlbeans.version>5.2.1</xmlbeans.version>
         <collections.version>4.4</collections.version>
@@ -23,9 +28,11 @@
 
         <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
         <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
-    <!-- 2) Importamos BOMs para Selenium y Cucumber -->
+    <!-- 2) BOMs -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -46,7 +53,7 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- Selenium (versión tomada desde el BOM) -->
+        <!-- Selenium -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
@@ -62,23 +69,35 @@
             <artifactId>cucumber-junit</artifactId>
         </dependency>
 
-        <!-- Allure Reporting -->
+        <!-- Allure (excluir slf4j-api para evitar traer 1.7.x por transitivas) -->
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-cucumber7-jvm</artifactId>
             <version>${allure.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-java-commons</artifactId>
             <version>${allure.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
-        <!-- Logging: SLF4J + Log4j2 -->
+        <!-- Logging: SLF4J 2.x + Log4j2 -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>2.0.13</version>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -90,9 +109,10 @@
             <artifactId>log4j-core</artifactId>
             <version>${log4j2.version}</version>
         </dependency>
+        <!-- Puente correcto para SLF4J 2.x -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
             <version>${log4j2.version}</version>
         </dependency>
 
@@ -135,6 +155,11 @@
                 <version>${maven.compiler.plugin.version}</version>
                 <configuration>
                     <release>${java.version}</release>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <compilerArgs>
+                        <arg>-Xlint:unchecked</arg>
+                        <arg>-Xlint:deprecation</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
 
@@ -147,7 +172,9 @@
                     <includes>
                         <include>**/TestRunner.java</include>
                     </includes>
+                    <argLine>-Dfile.encoding=${project.build.sourceEncoding}</argLine>
                 </configuration>
+
             </plugin>
 
             <!-- Plugin de Allure -->
